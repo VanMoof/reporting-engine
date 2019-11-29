@@ -43,9 +43,26 @@ try:
     import xlwt
     from xlwt.Style import default_style
 
+    def custom_set_cell_date(self, colx, datetime_obj, style=default_style):
+        """
+        When date_remove is empty, default value `None` is assigned:
+        xls_types_default = {..., 'date': None, ...}
+        This causes following error:
+        `argument 2 must be datetime.time, not None`
+        To fix this case, set type to `text` and value to ''
+        """
+        if datetime_obj == None:
+            datetime_obj = xls_types_default['text']
+            res = self.set_cell_text(colx, datetime_obj, style=style)
+        else:
+            res = self.set_cell_date(colx, datetime_obj, style=style)
+        return res
+
+    xlwt.Row.custom_set_cell_date = custom_set_cell_date
+
     xls_types = {
         'bool': xlwt.Row.set_cell_boolean,
-        'date': xlwt.Row.set_cell_date,
+        'date': xlwt.Row.custom_set_cell_date,
         'text': xlwt.Row.set_cell_text,
         'number': xlwt.Row.set_cell_number,
     }
